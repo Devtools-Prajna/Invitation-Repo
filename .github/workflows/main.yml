@@ -1,7 +1,7 @@
 name: Create Issue on Invitation Acceptance
 
 on:
- member:
+  organization_membership:
     types: [added]  # Triggered when a user is added to the organization
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
           fi
 
       - name: Create an Issue in the INVITATION REPO
-        if: success() # Ensure this runs if user is added
+        if: success() # Ensure this runs if the user is added successfully
         run: |
           USERNAME=${{ github.event.membership.user.login }}
           SUMMARY="New User Joined: $USERNAME"
