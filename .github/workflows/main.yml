@@ -1,7 +1,10 @@
 name: Create Issue on Invitation Acceptance
 
 on:
- organization_membership:
+ push:
+  branches:
+    -  main
+ member:
     types: [added]  # Triggered when a user is added to the organization
 
 jobs:
@@ -39,11 +42,5 @@ jobs:
           
           # Create an issue in the INVITATION_REPO
           curl -X POST \
-            -H "Authorization: token ${{ secrets.TOKEN }}" \
-            -d @- \
-            https://api.github.com/repos/Devtools-Prajna/Invitation-Repo/issues <<EOF
-          {
-            "title": "$SUMMARY",
-            "body": "$DESCRIPTION"
-          }
-          EOF
+            -H "Authoriz
+
