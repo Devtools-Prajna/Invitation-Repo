@@ -1,42 +1,38 @@
 name: Create Issue on Invitation Acceptance
 
 on:
-  push:
-    branches:
-        - main
-  organization_membership:
-    types: [added]  # Triggered when a user is added to the organization
+  member:
+    types: [added]  # Triggered when a user is added to the repository
 
 jobs:
   create-issue:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if the user is added to the repository
+      - name: Check if the user is part of the organization
         id: check_user
         run: |
-          echo "Checking if the user is added to the repository..."
-          USERNAME=${{ github.event.membership.user.login }}
-          REPO="Invitation-Repo" 
+          echo "Checking if the user is part of the organization..."
+          USERNAME=${{ github.event.member.login }}
           ORG="Devtools-Prajna"   # Replace with your organization name
           
-          # Check if the user is invited to the repository
-          INVITED=$(curl -s \
+          # Use GitHub API to check if user is part of the organization
+          ORG_MEMBER=$(curl -s \
             -H "Authorization: token ${{ secrets.TOKEN }}" \
-            "https://api.github.com/orgs/${ORG}/repos/${REPO}/collaborators/${USERNAME}")
+            "https://api.github.com/orgs/${ORG}/members/${USERNAME}")
           
-          # Determine if user is added to the repo
-          if [[ "$INVITED" == *"Not Found"* ]]; then
-            echo "User is not added to the repo yet. Exiting..."
+          # If user is part of the org, proceed to create an issue
+          if [[ "$ORG_MEMBER" == *"Not Found"* ]]; then
+            echo "User is not a member of the organization yet. Exiting..."
             exit 0
           else
-            echo "User is added to the repository."
+            echo "User is a member of the organization."
           fi
 
       - name: Create an Issue in the INVITATION REPO
-        if: success() # Ensure this runs if the user is added successfully
+        if: success() # Ensure this runs if the user is added to the repository and part of the organization
         run: |
-          USERNAME=${{ github.event.membership.user.login }}
+          USERNAME=${{ github.event.member.login }}
           SUMMARY="New User Joined: $USERNAME"
           DESCRIPTION="The user $USERNAME has accepted the invitation to join the organization and is now a member of the repository."
           
