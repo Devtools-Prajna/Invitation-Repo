@@ -1,7 +1,11 @@
 name: Create Issue on Invitation Acceptance
 
 on:
-  member:
+  push:
+     branches:
+       - main
+  
+  membership:
     types: [added]
 
 jobs:
@@ -9,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Check if the user is invited to the repo
+      - name: Check if the user is added to the repository
         id: check_user
         run: |
           echo "Checking if the user is added to the repository..."
