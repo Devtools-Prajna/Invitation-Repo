@@ -1,0 +1,49 @@
+name: Create Issue on Invitation Acceptance
+
+on:
+  member:
+    types: [added]
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check if the user is invited to the repo
+        id: check_user
+        run: |
+          echo "Checking if the user is added to the repository..."
+          USERNAME=${{ github.event.membership.user.login }}
+          REPO="Invitation-Repo" 
+          ORG="Devtools-Prajna"   # Replace with your organization name
+          
+          # Check if the user is invited to the repository
+          INVITED=$(curl -s \
+            -H "Authorization: token ${{ secrets.token }}" \
+            "https://api.github.com/orgs/${ORG}/repos/${REPO}/collaborators/${USERNAME}")
+          
+          # Determine if user is added to the repo
+          if [[ "$INVITED" == *"Not Found"* ]]; then
+            echo "User is not invited to the repo yet. Exiting..."
+            exit 0
+          else
+            echo "User is added to the repository."
+          fi
+
+      - name: Create an Issue in the INVITATION REPO
+        if: success() # Ensure this runs if user is added
+        run: |
+          USERNAME=${{ github.event.membership.user.login }}
+          SUMMARY="New User Joined: $USERNAME"
+          DESCRIPTION="The user $USERNAME has accepted the invitation to join the organization and is now a member of the repository."
+          
+          # Create an issue in the INVITATION_REPO
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.token }}" \
+            -d @- \
+            https://api.github.com/repos/Devtools-Prajna/Invitation-Repo/issues <<EOF
+          {
+            "title": "$SUMMARY",
+            "body": "$DESCRIPTION"
+          }
+          EOF
