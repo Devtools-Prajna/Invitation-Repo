@@ -5,7 +5,7 @@ on:
      branches:
        - main
   
-  membership:
+  member:
     types: [added]
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
           
           # Check if the user is invited to the repository
           INVITED=$(curl -s \
-            -H "Authorization: token ${{ secrets.token }}" \
+            -H "Authorization: token ${{ secrets.TOKEN }}" \
             "https://api.github.com/orgs/${ORG}/repos/${REPO}/collaborators/${USERNAME}")
           
           # Determine if user is added to the repo
@@ -43,7 +43,7 @@ jobs:
           
           # Create an issue in the INVITATION_REPO
           curl -X POST \
-            -H "Authorization: token ${{ secrets.token }}" \
+            -H "Authorization: token ${{ secrets.TOKEN }}" \
             -d @- \
             https://api.github.com/repos/Devtools-Prajna/Invitation-Repo/issues <<EOF
           {
