@@ -1,8 +1,8 @@
 name: Create Issue on Invitation Acceptance
 
 on:
-  member:
-    types: [added] 
+ member:
+    types: [added]  # Triggered when a user is added to the organization
 
 jobs:
   create-issue:
