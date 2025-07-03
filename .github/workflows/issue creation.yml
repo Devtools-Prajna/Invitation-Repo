@@ -1,28 +1,24 @@
-name: Org Member Joined Handler
-
+name: Create Issue on Org Member Add
+ 
 on:
   repository_dispatch:
-    types: [org-member-joined]
-
+    types: [triggered-by-org-member-add]
+ 
 jobs:
   create_issue:
     runs-on: ubuntu-latest
-
+ 
     steps:
-      - name: Create Issue for new org member
-        uses: actions/github-script@v7
+      - name: Write issue content to file
+        run: |
+          echo "## Summary" > issue-body.md
+          echo "${{ github.event.client_payload.issue_summary }}" >> issue-body.md
+          echo "" >> issue-body.md
+          echo "_This issue was automatically created by a webhook trigger._" >> issue-body.md
+      - name: Create an issue from file
+        uses: peter-evans/create-issue-from-file@v5
         with:
-          github-token: ${{ secrets.TOKEN }}
-          script: |
-            const member = "${{ github.event.client_payload.member }}";
-            const org = "${{ github.event.client_payload.org }}";
-
-            const title = `🎉 New member joined ${org}`;
-            const body = `**${member}** has accepted the invitation and joined **${org}**.`;
-
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title,
-              body
-            });
+          token: ${{ secrets.M_GITHUB_TOKEN }}
+          title: ${{ github.event.client_payload.issue_title }}
+          content-filepath: issue-body.md
+          labels: notification
